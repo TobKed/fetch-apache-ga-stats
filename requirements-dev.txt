@@ -14,9 +14,5 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
----
-extends: default
-
-rules:
-  line-length:
-    max: 110
+-r requirements.txt
+yamllint==1.25.0
