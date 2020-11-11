@@ -1,0 +1,73 @@
+name: Fetch GitHub Action queue
+on:  # yamllint disable-line rule:truthy
+  push:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+
+jobs:
+
+  check_gcp_variables:
+    timeout-minutes: 5
+    name: "Check GCP variables"
+    runs-on: ubuntu-latest
+    outputs:
+      gcp-variables-set: ${{ steps.check_gcp_variables.outputs.gcp-variables-set }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Check are GCP variables set"
+        run: "./check_are_gcp_variables_set.sh"
+        id: check_gcp_variables
+        env:
+          GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GCP_BUCKET: ${{ secrets.GCP_BUCKET }}
+
+
+  github-actions-fetch-queue-apache-repo:
+    name: "Github Action fetch queue ${{ matrix.organisation }}/${{ matrix.repository }}"
+    runs-on: ubuntu-latest
+    needs: check_gcp_variables
+    strategy:
+      matrix:
+        organisation: ["apache"]
+        repository: ["airflow", "beam"]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Install Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Fetch GitHub Action queue
+      uses: TobKed/fetch-github-actions-queue@develop
+      id: fetch-queue
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: "${{ matrix.organisation }}/${{ matrix.repository }}"
+    - name: Save to JSON and CSV
+      run: |
+        TIMESTAMP=`date --utc +%Y%m%d_%H%M%SZ`
+        TIMESTAMP_ISO8601=`date --utc +%FT%T%Z`
+        JSON_FILE="${TIMESTAMP}.json"
+        echo ${{ toJson(steps.fetch-queue.outputs.workflowRuns) }} > "${JSON_FILE}"
+        python json_to_csv.py -i $JSON_FILE -o "${TIMESTAMP}.csv" -a "{\"write_timestamp\":\"${TIMESTAMP_ISO8601}\"}"
+    - name: Upload stats as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.repository }}-${{ matrix.repository }}-queue
+        path: |
+          *.json
+          *.csv
+    - name: Authenticate on GCP
+      if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true'
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - name: Copy stats to GCS bucket
+      if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true'
+      run: |
+        gsutil cp -a public-read *.json ${{ secrets.GCP_BUCKET }}/${{ matrix.organisation }}/${{ matrix.repository }}/
+        gsutil cp -a public-read *.csv ${{ secrets.GCP_BUCKET }}/${{ matrix.organisation }}/${{ matrix.repository }}/
