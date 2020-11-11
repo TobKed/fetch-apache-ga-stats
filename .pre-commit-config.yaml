@@ -1,7 +1,7 @@
 ---
 default_stages: [commit, push]
 default_language_version:
-  python: python3.7
+  python: python3.8
 minimum_pre_commit_version: "1.20.0"
 repos:
   - repo: https://github.com/Lucas-C/pre-commit-hooks
@@ -20,10 +20,14 @@ repos:
       - id: mixed-line-ending
       - id: check-executables-have-shebangs
       - id: trailing-whitespace
+  - repo: https://github.com/psf/black
+    rev: 20.8b1
+    hooks:
+      - id: black
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.25.0
     hooks:
-      - id: yamllints
+      - id: yamllint
         name: Check yaml files with yamllint
         entry: yamllint -c yamllint-config.yml --strict
         types: [yaml]
