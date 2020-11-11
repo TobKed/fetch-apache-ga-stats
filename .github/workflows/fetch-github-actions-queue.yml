@@ -17,7 +17,7 @@ jobs:
       gcp-variables-set: ${{ steps.check_gcp_variables.outputs.gcp-variables-set }}
     steps:
       - uses: actions/checkout@v2
-      - name: "Check are GCP variables set"
+      - name: Check are GCP variables set
         run: "./check_are_gcp_variables_set.sh"
         id: check_gcp_variables
         env:
@@ -35,14 +35,12 @@ jobs:
         organisation: ["apache"]
         repository: ["airflow", "beam"]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install Python
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: 3.8
       - name: Fetch GitHub Action queue
-        uses: TobKed/fetch-github-actions-queue@develop
+        uses: TobKed/fetch-github-actions-queue@v1
         id: fetch-queue
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -74,6 +72,6 @@ jobs:
         if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true'
         run: |
           gsutil cp -a public-read *.json \
-            ${{ secrets.GCP_BUCKET }}/${{ matrix.organisation }}/${{ matrix.repository }}/
+            gs://${{ secrets.GCP_BUCKET }}/${{ matrix.organisation }}/${{ matrix.repository }}/
           gsutil cp -a public-read *.csv \
-            ${{ secrets.GCP_BUCKET }}/${{ matrix.organisation }}/${{ matrix.repository }}/
+            gs://${{ secrets.GCP_BUCKET }}/${{ matrix.organisation }}/${{ matrix.repository }}/

@@ -1,0 +1,30 @@
+---
+name: "Test the build"
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+  push:
+
+jobs:
+  pre-commit:  # make sure pre-commits work properly
+    name: "Pre-commit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install requirements
+        run: python -m pip install -r requirements.txt
+      - name: Cache pre-commit env
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-pre-commit-v1
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ env.cache-name }}-${{ github.job }}-${{ hashFiles('.pre-commit-config.yaml') }}
+      - name: Install pre-commit
+        run: |
+          pip install pre-commit
+      - name: Run pre-commit
+        run: |
+          pre-commit run --all-files --show-diff-on-failure --color always
