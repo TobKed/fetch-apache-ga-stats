@@ -1,14 +1,32 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 ---
 name: Fetch GitHub Action queue
 on:  # yamllint disable-line rule:truthy
-  push:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/10 * * * *'
   workflow_dispatch:
     inputs:
 
-jobs:
+env:
+  BQ_CSV_FILE: "bq.csv"
+  GCS_STATS_DIR: "gcs"
 
+jobs:
   check_gcp_variables:
     timeout-minutes: 5
     name: "Check GCP variables"
@@ -18,60 +36,61 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Check are GCP variables set
-        run: "./check_are_gcp_variables_set.sh"
+        run: "./scripts/check_are_gcp_variables_set.sh"
         id: check_gcp_variables
         env:
           GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           GCP_BUCKET: ${{ secrets.GCP_BUCKET }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
 
-  github-actions-fetch-queue-apache-repo:
-    name: "Github Action fetch queue ${{ matrix.organisation }}/${{ matrix.repository }}"
+  github_actions_fetch_queue_apache_repo:
+    name: "Github Action fetch queue"
+    timeout-minutes: 5
     runs-on: ubuntu-latest
-    needs: check_gcp_variables
-    strategy:
-      matrix:
-        organisation: ["apache"]
-        repository: ["airflow", "beam"]
+    needs:
+      - check_gcp_variables
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
+      - name: Install requirements
+        run: pip install -r requirements.txt
       - name: Fetch GitHub Action queue
-        uses: TobKed/fetch-github-actions-queue@v1
-        id: fetch-queue
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: "${{ matrix.organisation }}/${{ matrix.repository }}"
-      - name: Save to JSON and CSV
         run: |
-          TIMESTAMP=`date --utc +%Y%m%d_%H%M%SZ`
-          TIMESTAMP_ISO8601=`date --utc +%FT%T%Z`
-          JSON_FILE="${TIMESTAMP}.json"
-          echo ${{ toJson(steps.fetch-queue.outputs.workflowRuns) }} > "${JSON_FILE}"
-          python json_to_csv.py \
-            --input $JSON_FILE \
-            --output "${TIMESTAMP}.csv" \
-            --additional_data "{\"write_timestamp\":\"${TIMESTAMP_ISO8601}\"}"
+          python scripts/fetch_github_actions_queue.py \
+            --input matrix.json \
+            --bq-output ${{ env.BQ_CSV_FILE }} \
+            --gcs-output-dir ${{ env.GCS_STATS_DIR }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload stats as artifacts
         uses: actions/upload-artifact@v2
+        if: ${{ always() }}
         with:
-          name: ${{ matrix.repository }}-${{ matrix.repository }}-queue
+          name: statistics
           path: |
-            *.json
-            *.csv
+            ${{ env.GCS_STATS_DIR }}/**
+            ${{ env.BQ_CSV_FILE }}
       - name: Authenticate on GCP
-        if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true'
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true' && ${{ always() }}
+        uses: google-github-actions/setup-gcloud@master
         with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_email: ${{ secrets.GCP_SA_EMAIL }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
       - name: Copy stats to GCS bucket
-        if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true'
+        if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true' && ${{ always() }}
         run: |
-          gsutil cp -a public-read *.json \
-            gs://${{ secrets.GCP_BUCKET }}/${{ matrix.organisation }}/${{ matrix.repository }}/
-          gsutil cp -a public-read *.csv \
-            gs://${{ secrets.GCP_BUCKET }}/${{ matrix.organisation }}/${{ matrix.repository }}/
+          gsutil cp -r -a public-read ${{ env.GCS_STATS_DIR }}/** gs://${{ secrets.GCP_BUCKET }}
+      - name: Copy processed stats to BigQuery
+        if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true' && ${{ always() }}
+        run: |
+          bq load \
+              --autodetect \
+              --source_format=CSV \
+              ${{ secrets.BQ_TABLE }} \
+              ${{ env.BQ_CSV_FILE }}

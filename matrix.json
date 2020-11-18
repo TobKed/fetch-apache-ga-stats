@@ -1,0 +1,9 @@
+{
+    "organisation": [
+        "apache"
+    ],
+    "repository": [
+        "airflow",
+        "beam",
+    ]
+}

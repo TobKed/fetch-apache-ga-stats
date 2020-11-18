@@ -15,14 +15,17 @@
 # specific language governing permissions and limitations
 # under the License.
 ---
-name: "Test the build"
+name: Fetch Apache Repositories with GA
 on:  # yamllint disable-line rule:truthy
-  pull_request:
-  push:
+  schedule:
+    - cron: '0 0 * * SUN'
+  workflow_dispatch:
+    inputs:
 
 jobs:
-  pre-commit:  # make sure pre-commits work properly
-    name: "Pre-commit"
+  fetch_apache_repos_with_ga:
+    name: "Fetch Apache repos with GitHub Actions"
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -30,17 +33,19 @@ jobs:
         with:
           python-version: 3.8
       - name: Install requirements
-        run: python -m pip install -r requirements-dev.txt
-      - name: Cache pre-commit env
-        uses: actions/cache@v2
+        run: pip install -r requirements.txt
+      - name: Fetch Apache repos with GitHub Actions
+        run: |
+          python scripts/fetch_apache_projects_with_ga.py \
+            --org apache \
+            --output matrix.json
         env:
-          cache-name: cache-pre-commit-v1
-        with:
-          path: ~/.cache/pre-commit
-          key: ${{ env.cache-name }}-${{ github.job }}-${{ hashFiles('.pre-commit-config.yaml') }}
-      - name: Install pre-commit
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+      - name: Commit and push if matrix changed
         run: |
-          pip install pre-commit
-      - name: Run pre-commit
-        run: |
-          pre-commit run --all-files --show-diff-on-failure --color always
+          git config user.name "Automated"
+          git config user.email "actions@users.noreply.github.com"
+          git add matrix.json
+          timestamp=$(date -u)
+          git commit -m "Latest data: ${timestamp}" || exit 0
+          git push
