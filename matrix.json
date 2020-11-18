@@ -4,6 +4,6 @@
     ],
     "repository": [
         "airflow",
-        "beam",
+        "beam"
     ]
 }
