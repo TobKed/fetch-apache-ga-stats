@@ -51,9 +51,9 @@ def get_stats_from_file(file: str) -> Tuple[int, int]:
 def get_timestamp_from_filename(file: str) -> datetime:
     name = Path(file).name
     name = name[:-5]
-    t = datetime.strptime(name, "%Y%m%d_%H%M%SZ")
-    t.replace(tzinfo=timezone.utc)
-    return t
+    t_stamp = datetime.strptime(name, "%Y%m%d_%H%M%SZ")
+    t_stamp.replace(tzinfo=timezone.utc)
+    return t_stamp
 
 
 def parse_repos(owner: str, repos_dir: str, output: str) -> None:
@@ -82,7 +82,7 @@ def parse_repos(owner: str, repos_dir: str, output: str) -> None:
                     }
                     print(f"{owner}/{repo}: {in_progress}, {queued}")
                     writer.writerow(csv_data)
-                except:  # noqa
+                except:  # noqa pylint: disable=bare-except
                     failed.append(file)
 
     print(f"Failed files {len(failed)}:")
@@ -91,14 +91,16 @@ def parse_repos(owner: str, repos_dir: str, output: str) -> None:
 
 
 if __name__ == "__main__":
-    base_dir, output = parse_args()
+    base_dir, output_file = parse_args()
 
-    owners = os.listdir(base_dir)
-    if owners and len(owners) == 1:
-        owner = owners[0]
-        repos_dir = os.path.join(base_dir, owner)
-        parse_repos(owner, repos_dir, output)
-    elif owners:
-        for owner in os.listdir(base_dir):
-            repos_dir = os.path.join(base_dir, owner)
-            parse_repos(owner, repos_dir, f"{output}_{owner}")
+    repo_owners = os.listdir(base_dir)
+    if repo_owners and len(repo_owners) == 1:
+        repository_owner = repo_owners[0]
+        repositories_dir = os.path.join(base_dir, repository_owner)
+        parse_repos(repository_owner, repositories_dir, output_file)
+    elif repo_owners:
+        for repository_owner in os.listdir(base_dir):
+            repositories_dir = os.path.join(base_dir, repository_owner)
+            parse_repos(
+                repository_owner, repositories_dir, f"{output_file}_{repository_owner}"
+            )

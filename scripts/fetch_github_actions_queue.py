@@ -58,8 +58,8 @@ def parse_args() -> Tuple[str, str, str]:
     return args.input, args.bq_output, args.gcs_output_dir
 
 
-def parse_input_file(input_file: str) -> Tuple[str, List[str]]:
-    with open(input_file) as json_file:
+def parse_input_file(file: str) -> Tuple[str, List[str]]:
+    with open(file) as json_file:
         data = json.load(json_file)
     return data["organisation"][0], data["repository"]
 
@@ -90,28 +90,29 @@ def fetch_repo_queue(owner: str, repo: str) -> Tuple[list, dict, datetime]:
     return workflows, status_count, timestamp
 
 
+# pylint: disable=too-many-locals
 def fetch_github_actions_queue(
-    repos_owner: str, repos: List[str], bq_csv_file: str, gcs_output_dir: str
-):
+    owner: str, repos: List[str], csv_file: str, output_dir: str
+) -> None:
     print(f"Fetching repos ({len(repos)}) (in_progress, queued):")
-    with open(bq_csv_file, mode="w") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=CSV_FIELDNAMES)
+    with open(csv_file, mode="w") as file:
+        writer = csv.DictWriter(file, fieldnames=CSV_FIELDNAMES)
         writer.writeheader()
         for repo in repos:
-            workflows, status_count, timestamp = fetch_repo_queue(repos_owner, repo)
+            workflows, status_count, timestamp = fetch_repo_queue(owner, repo)
             queued = status_count["queued"]
             in_progress = status_count["in_progress"]
             csv_data = {
                 "repository_name": repo,
-                "repository_owner": repos_owner,
+                "repository_owner": owner,
                 "queued": in_progress,
                 "in_progress": queued,
                 "timestamp": timestamp,
             }
-            print(f"{repos_owner}/{repo}: {in_progress}, {queued}")
+            print(f"{owner}/{repo}: {in_progress}, {queued}")
             writer.writerow(csv_data)
 
-            directory = os.path.join(gcs_output_dir, repos_owner, repo)
+            directory = os.path.join(output_dir, owner, repo)
             filename = os.path.join(
                 directory, timestamp.strftime("%Y%m%d_%H%M%SZ") + ".json"
             )
@@ -122,5 +123,7 @@ def fetch_github_actions_queue(
 
 if __name__ == "__main__":
     input_file, bq_csv_file, gcs_output_dir = parse_args()
-    repos_owner, repos = parse_input_file(input_file)
-    fetch_github_actions_queue(repos_owner, repos, bq_csv_file, gcs_output_dir)
+    repositories_owner, repositories = parse_input_file(input_file)
+    fetch_github_actions_queue(
+        repositories_owner, repositories, bq_csv_file, gcs_output_dir
+    )

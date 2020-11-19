@@ -15,4 +15,5 @@
 # specific language governing permissions and limitations
 # under the License.
 -r requirements.txt
+pylint==2.6.0
 yamllint==1.25.0

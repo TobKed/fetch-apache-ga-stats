@@ -57,13 +57,11 @@ HEADERS: Dict[str, str] = {
 
 class QuotaException(Exception):
     def __init__(
-        self,
-        request: requests.Response,
-        repo: Optional[str] = None,
+        self, request: requests.Response, repo: Optional[str] = None, message=None
     ) -> None:
-        logging.error(f"Repo: {repo}")
-        logging.error(f"request.text: {getattr(request, 'text', '')}")
-        logging.error(f"request.content: {getattr(request, 'content', '')}")
+        logging.error("Repo: %s", repo)
+        logging.error("request.text: %s", getattr(request, "text", ""))
+        logging.error("request.content: %s", getattr(request, "content", ""))
 
         headers = getattr(request, "headers", {})
         rate_limit_reset = headers.get("X-RateLimit-Reset")
@@ -72,12 +70,13 @@ class QuotaException(Exception):
             "X-RateLimit-Remaining": headers.get("X-RateLimit-Remaining"),
             "X-RateLimit-Reset": rate_limit_reset,
         }
-        logging.error(f"PossibleQuotaException:\n{data}")
+        logging.error("PossibleQuotaException:\n%s", str(data))
         if rate_limit_reset:
             logging.error(
-                f"Limit will reset at: "
-                f"{datetime.datetime.fromtimestamp(int(rate_limit_reset)).isoformat()}"
+                "Limit will reset at: %s",
+                datetime.datetime.fromtimestamp(int(rate_limit_reset)).isoformat(),
             )
+        super().__init__(message)
 
 
 def raise_for_status(request: requests.Response):
@@ -87,8 +86,8 @@ def raise_for_status(request: requests.Response):
     try:
         request.raise_for_status()
     except:  # noqa
-        logging.error(f"request.text: {getattr(request, 'text', '')}")
-        logging.error(f"request.content: {getattr(request, 'content', '')}")
+        logging.error("request.text: %s", getattr(request, "text", ""))
+        logging.error("request.content: %s", getattr(request, "content", ""))
         raise
 
 
@@ -126,7 +125,7 @@ def check_which_org_repos_use_ga(
         r = requests.get(url, headers=HEADERS)
         raise_for_status(r)
         if r.json().get("total_count"):
-            logging.debug(f" '{organisation}/{repo}' using GA: true")
+            logging.debug(" '%s/%s' using GA: true", organisation, repo)
             _repos_with_ga.append(repo)
 
     print(
