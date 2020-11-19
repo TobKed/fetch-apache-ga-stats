@@ -68,6 +68,6 @@ repos:
         files: \.md$
         args:
           - "--maxlevel"
-          - "2"
+          - "4"
           - "--title"
           - "**Table of Contents**"
