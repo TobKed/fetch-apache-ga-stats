@@ -65,7 +65,7 @@ jobs:
             --bq-output ${{ env.BQ_CSV_FILE }} \
             --gcs-output-dir ${{ env.GCS_STATS_DIR }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: Upload stats as artifacts
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
