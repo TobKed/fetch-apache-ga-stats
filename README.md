@@ -32,7 +32,7 @@
     - [CSV file](#csv-file)
     - [Processing existing json files to csv and pushing it to BigQuery](#processing-existing-json-files-to-csv-and-pushing-it-to-bigquery)
 - [Determining ASF repositories which uses GitHub Actions (matrix.json)](#determining-asf-repositories-which-uses-github-actions-matrixjson)
-  - [GitHub Actions Secrets:](#github-actions-secrets)
+- [GitHub Actions Secrets:](#github-actions-secrets)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -122,7 +122,7 @@ and can be updated in three ways:
 
 Running python script and action cause many requests in behalf of used GitHub Access token which may cause in exceeding quota limits.
 
-### GitHub Actions Secrets:
+## GitHub Actions Secrets:
 
 | Secret           | Required | Description                                                                                                                                                                                                                                                                                                                                                  |
 |------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
