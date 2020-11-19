@@ -141,6 +141,7 @@ def save_json_file(organisation: str, repositories: List[str], file: str) -> Non
     data = {"organisation": [organisation], "repository": repositories}
     with open(file, "w") as outfile:
         json.dump(data, outfile, indent=4)
+        outfile.write("\n")
 
 
 if __name__ == "__main__":
