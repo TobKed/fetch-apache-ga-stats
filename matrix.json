@@ -148,7 +148,6 @@
         "incubator-teaclave-sgx-sdk",
         "incubator-tubemq-website",
         "incubator-tuweni",
-        "incubator-tvm",
         "incubator-weex-site",
         "incubator-yunikorn-core",
         "incubator-yunikorn-k8shim",
@@ -231,11 +230,13 @@
         "skywalking-data-collect-protocol",
         "skywalking-kubernetes",
         "skywalking-nginx-lua",
+        "skywalking-nodejs",
         "skywalking-python",
         "skywalking-rocketbot-ui",
         "skywalking-rust",
         "skywalking-satellite",
         "skywalking-swck",
+        "skywalking-website",
         "spark",
         "streams",
         "submarine",
@@ -248,10 +249,12 @@
         "tomee",
         "trafficcontrol",
         "trafficserver-ingress-controller",
+        "tvm",
         "wicket",
         "ws-wss4j",
         "yetus",
         "yetus-homebrew",
-        "yetus-test-patch-action"
+        "yetus-test-patch-action",
+        "zeppelin"
     ]
 }
