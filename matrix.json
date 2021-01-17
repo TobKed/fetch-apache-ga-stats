@@ -114,6 +114,8 @@
         "dubbo-js",
         "dubbo-samples",
         "dubbo-website",
+        "echarts",
+        "echarts-doc",
         "felix-atomos",
         "fineract",
         "flink-statefun",
@@ -138,8 +140,6 @@
         "incubator-daffodil-site",
         "incubator-dolphinscheduler",
         "incubator-dolphinscheduler-website",
-        "incubator-echarts",
-        "incubator-echarts-doc",
         "incubator-gobblin",
         "incubator-hop",
         "incubator-mxnet",
@@ -184,6 +184,7 @@
         "logging-log4cxx",
         "logging-log4j2",
         "lucene-solr",
+        "lucene-solr-operator",
         "lucenenet",
         "mahout",
         "maven",
@@ -193,6 +194,7 @@
         "maven-deploy-plugin",
         "maven-enforcer",
         "maven-fluido-skin",
+        "maven-help-plugin",
         "maven-install-plugin",
         "maven-invoker-plugin",
         "maven-javadoc-plugin",
@@ -207,6 +209,7 @@
         "maven-verifier",
         "mina-sshd",
         "mnemonic",
+        "myfaces",
         "myfaces-tobago",
         "netbeans",
         "netbeans-website",
@@ -284,6 +287,7 @@
         "yetus",
         "yetus-homebrew",
         "yetus-test-patch-action",
-        "zeppelin"
+        "zeppelin",
+        "zookeeper"
     ]
 }
