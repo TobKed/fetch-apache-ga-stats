@@ -316,6 +316,7 @@
         "systemds",
         "thrift",
         "thrift-website",
+        "tika",
         "tomcat",
         "tomee",
         "trafficcontrol",
