@@ -28,7 +28,7 @@ env:
 
 jobs:
   check_gcp_variables:
-    timeout-minutes: 5
+    timeout-minutes: 15
     name: "Check GCP variables"
     runs-on: ubuntu-latest
     outputs:
@@ -47,7 +47,7 @@ jobs:
 
   github_actions_fetch_queue_apache_repo:
     name: "Github Action fetch queue"
-    timeout-minutes: 5
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     needs:
       - check_gcp_variables
