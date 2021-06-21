@@ -85,7 +85,7 @@ jobs:
       - name: Copy stats to GCS bucket
         if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true' && ${{ always() }}
         run: |
-          gsutil cp -r -a public-read ${{ env.GCS_STATS_DIR }}/** gs://${{ secrets.GCP_BUCKET }}
+          gsutil -u ${{ secrets.GCP_PROJECT_ID }} cp -r -a public-read ${{ env.GCS_STATS_DIR }}/** gs://${{ secrets.GCP_BUCKET }}
       - name: Copy processed stats to BigQuery
         if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true' && ${{ always() }}
         run: |
