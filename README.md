@@ -20,6 +20,8 @@
 # Fetch Apache GitHub Actions Statistics
 
 ![Test the build](https://github.com/TobKed/fetch-apache-ga-stats/workflows/Test%20the%20build/badge.svg)
+[![Fetch GitHub Action queue](https://github.com/TobKed/fetch-apache-ga-stats/actions/workflows/fetch-github-actions-queue.yml/badge.svg)](https://github.com/TobKed/fetch-apache-ga-stats/actions/workflows/fetch-github-actions-queue.yml)
+[![Fetch Apache Repositories with GA](https://github.com/TobKed/fetch-apache-ga-stats/actions/workflows/fetch-apache-repos-with-ga.yml/badge.svg)](https://github.com/TobKed/fetch-apache-ga-stats/actions/workflows/fetch-apache-repos-with-ga.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
