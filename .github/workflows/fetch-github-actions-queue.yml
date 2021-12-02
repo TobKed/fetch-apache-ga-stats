@@ -75,7 +75,9 @@ jobs:
             ${{ env.GCS_STATS_DIR }}/**
             ${{ env.BQ_CSV_FILE }}
       - name: Authenticate on GCP
-        if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true' && ${{ always() }}
+        if: >
+          needs.check_gcp_variables.outputs.gcp-variables-set == 'true' &&
+          ${{ always() }}
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
@@ -83,11 +85,16 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
       - name: Copy stats to GCS bucket
-        if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true' && ${{ always() }}
+        if: >
+          needs.check_gcp_variables.outputs.gcp-variables-set == 'true' &&
+          ${{ always() }}
         run: |
-          gsutil -u ${{ secrets.GCP_PROJECT_ID }} cp -r -a public-read ${{ env.GCS_STATS_DIR }}/** gs://${{ secrets.GCP_BUCKET }}
+          gsutil -u ${{ secrets.GCP_PROJECT_ID }} cp -r -a public-read \
+          ${{ env.GCS_STATS_DIR }}/** gs://${{ secrets.GCP_BUCKET }}
       - name: Copy processed stats to BigQuery
-        if: needs.check_gcp_variables.outputs.gcp-variables-set == 'true' && ${{ always() }}
+        if: >
+          needs.check_gcp_variables.outputs.gcp-variables-set == 'true' &&
+          ${{ always() }}
         run: |
           bq load \
               --autodetect \
