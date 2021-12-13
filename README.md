@@ -82,7 +82,7 @@ example-bucket-name
 
 Single `bq.csv` file is created and contains simple statistics for all fetched repositories.
 This file is used in the [Fetch GitHub Action queue](.github/workflows/fetch-github-actions-queue.yml)
-to efficiently upload data to BigQuery table.
+to efficiently upload data to the BigQuery table.
 
 CSV file headers: `repository_owner`, `repository_name`, `queued`, `in_progress`, `in_progress`.
 
@@ -96,7 +96,7 @@ apache,beam,0,1,2020-11-19 17:53:39.171882+00:00
 
 #### Processing existing json files to csv and pushing it to BigQuery
 
-Helper script `scripts/parse_existing_json_files.py` can be used to process existing json files into single csv.
+Helper script `scripts/parse_existing_json_files.py` can be used to process existing json files into a single csv.
 
 Example use:
 ```shell script
@@ -113,8 +113,8 @@ bq load --autodetect \
 
 ## Determining ASF repositories which uses GitHub Actions (matrix.json)
 
-There is no single endpoint to obtain list of ASF repositories which uses GA and since ASF consists of 2000+
-repositories it is not trivial task to obtain it.
+There is no single endpoint to obtain a list of ASF repositories which uses GA and since ASF consists of 2000+
+repositories it is not a trivial task to obtain it.
 
 This list of repositories which uses GitHub Actions is stored in [matrix.json](./matrix.json)
 and can be updated in three ways:
@@ -122,7 +122,7 @@ and can be updated in three ways:
  * by using [fetch_apache_projects_with_ga.py](scripts/fetch_apache_projects_with_ga.py) python script and committing changes
  * automatically by [Fetch Apache Repositories with GA](.github/workflows/fetch-apache-repos-with-ga.yml) action (changes committed automatically when occur).
 
-Running python script and action cause many requests in behalf of used GitHub Access token which may cause in exceeding quota limits.
+Running python script and action causes many requests on behalf of used GitHub Access tokens which may cause exceeding quota limits.
 
 ## GitHub Actions Secrets:
 
