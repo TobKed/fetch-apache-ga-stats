@@ -291,6 +291,7 @@
         "kylin",
         "libcloud",
         "logging-log4cxx",
+        "logging-log4j-scala",
         "logging-log4j2",
         "lucene",
         "lucene-solr",
