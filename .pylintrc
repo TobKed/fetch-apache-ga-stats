@@ -141,7 +141,8 @@ disable=print-statement,
         comprehension-escape,
         missing-function-docstring,
         missing-class-docstring,
-        duplicate-code
+        duplicate-code,
+        unspecified-encoding
 
 
 
