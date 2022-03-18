@@ -15,7 +15,6 @@ resource "local_file" "ga_actions_sa_key" {
 resource "google_bigquery_dataset_iam_binding" "bq_iam_binding_data_owner" {
   project = google_bigquery_table.simple_statistics.project
   dataset_id = google_bigquery_table.simple_statistics.dataset_id
-#  table_id = google_bigquery_table.simple_statistics.table_id
   role = "roles/bigquery.dataOwner"
 
   members = [
@@ -27,8 +26,6 @@ resource "google_bigquery_dataset_iam_binding" "bq_iam_binding_data_owner" {
 
 resource "google_project_iam_binding" "iam_binding_job_user" {
   project = google_bigquery_table.simple_statistics.project
-#  dataset_id = google_bigquery_table.simple_statistics.dataset_id
-##  table_id = google_bigquery_table.simple_statistics.table_id
   role = "roles/bigquery.user"
 
   members = [
