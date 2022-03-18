@@ -81,7 +81,6 @@ jobs:
             ${{ env.STATS_DIR }}/**
             ${{ env.BQ_CSV_FILE }}
       - name: Authenticate on GCP
-        id: gcp-auth
         if: needs.check-variables.outputs.gcp-variables-set == 'true' && always()
         # OIDC is not currently supported by bq cli
         uses: google-github-actions/setup-gcloud@877d4953d2c70a0ba7ef3290ae968eb24af233bb  # v0.6.0
