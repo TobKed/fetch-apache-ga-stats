@@ -35,6 +35,7 @@
     - [Processing existing json files to csv and pushing it to BigQuery](#processing-existing-json-files-to-csv-and-pushing-it-to-bigquery)
 - [Determining ASF repositories which uses GitHub Actions (matrix.json)](#determining-asf-repositories-which-uses-github-actions-matrixjson)
 - [GitHub Actions Secrets:](#github-actions-secrets)
+- [Google Cloud Platform infrastructure](#google-cloud-platform-infrastructure)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -62,21 +63,6 @@ These files are uploaded as workflow artifact.
 The json files contain list of repository workflow runs in `queued` and `in_progress` state.
 File titles contain timestamp when fetching this list started.
 The json schema is described in GitHub API documentation [here](https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#list-workflow-runs-for-a-repository).
-
-Files are uploaded to Google Cloud Storage for later processing.
-
-Example structure of objects in Google Cloud Storage bucket:
-
-```shell script
-example-bucket-name
-└── apache
-    ├── airflow
-    │   ├── 20201103_130148Z.json
-    │   └── 20201103_131641Z.json
-    └── beam
-        ├── 20201103_130148Z.json
-        └── 20201103_131641Z.json
-```
 
 #### CSV file
 
@@ -126,11 +112,14 @@ Running python script and action causes many requests on behalf of used GitHub A
 
 ## GitHub Actions Secrets:
 
-| Secret           | Required | Description                                                                                                                                                                                                                                                                                                                                                  |
-|------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `PERSONAL_TOKEN` | True     | [Personal GitHub access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) used to authorize requests. It has bigger quota than [`GITHUB_TOKEN  secret`](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret) |
-| `BQ_TABLE`       | -        | BigQuery table reference to which simple statistics will be pushed (e.g. `dataset.table`).                                                                                                                                                                                                                                                                   |
-| `GCP_BUCKET`     | -        | Google Cloud storage bucket to which json files with workflows payload will be pushed (e.g. `example-bucket-name`).                                                                                                                                                                                                                                          |
-| `GCP_PROJECT_ID` | -        | Google Cloud Project ID.                                                                                                                                                                                                                                                                                                                                     |
-| `GCP_SA_KEY`     | -        | Google Cloud Service Account key (Service Account with permissions to Google Cloud Storage and BigQuery).                                                                                                                                                                                                                                                    |
-| `GCP_SA_EMAIL`   | -        | Google Cloud Service Account email (Service Account with permissions to Google Cloud Storage and BigQuery).                                                                                                                                                                                                                                                  |
+| Secret                  | Required | Description                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|-------------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PERSONAL_ACCESS_TOKEN` | True     | [Personal GitHub access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)(no need for additional permissions, don't have to select any checkboxes) used to authorize requests. It has bigger quota than [`GITHUB_TOKEN secret`](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret). |
+| `GCP_PROJECT_ID`        | -        | Google Cloud Project ID.                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `BQ_TABLE`              | -        | BigQuery table reference to which simple statistics will be pushed (e.g. `dataset.table`).                                                                                                                                                                                                                                                                                                                                            |
+| `GCP_SA_KEY`            | -        | Google Cloud Service Account key (Service Account with permissions to Google Cloud Storage and BigQuery).                                                                                                                                                                                                                                                                                                                             |
+| `GCP_SA_EMAIL`          | -        | Google Cloud Service Account email (Service Account with permissions to Google Cloud Storage and BigQuery).                                                                                                                                                                                                                                                                                                                           |
+
+## Google Cloud Platform infrastructure
+
+All infrastructure components necessary to store statistics in BigQuery were wrapped in [./terraform](./terraform) folder.

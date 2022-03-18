@@ -22,16 +22,25 @@ on:  # yamllint disable-line rule:truthy
   workflow_dispatch:
     inputs:
 
+env:
+  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
 jobs:
-  fetch_apache_repos_with_ga:
+  fetch-apache-repos-with-ga:
     name: "Fetch Apache repos with GitHub Actions"
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Check is PERSONAL_ACCESS_TOKEN set
+        id: check-pat-variable
+        run: './scripts/check_are_variables_set.sh "GITHUB_TOKEN"'
+      - name: Stop if PERSONAL_ACCESS_TOKEN is not set
+        if: steps.check-pat-variable.outputs.are-variables-set != 'true'
+        run: echo "Variables not set! Set PERSONAL_ACCESS_TOKEN in repository secrets (see README)" && exit 1
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Install requirements
         run: pip install -r requirements.txt
       - name: Fetch Apache repos with GitHub Actions
@@ -39,13 +48,11 @@ jobs:
           python scripts/fetch_apache_projects_with_ga.py \
             --org apache \
             --output matrix.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: Commit and push if matrix changed
         run: |
           git config user.name "Automated"
           git config user.email "actions@users.noreply.github.com"
           git add matrix.json
           timestamp=$(date -u)
-          git commit -m "Latest data: ${timestamp}" || exit 0
+          git commit -m "Matrix update. Latest data: ${timestamp}" || exit 0
           git push

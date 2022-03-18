@@ -18,8 +18,7 @@
 
 set -e
 
-echo "This script checks of presence of variables required to perform operations on Google Cloud Platform. They should be stored as secrets."
-echo "More detailed information about Google Cloud Platform Credentials can be found in CI.md"
+echo "This script checks for presence of variables."
 
 function check_vars() {
   ret=true
@@ -34,10 +33,10 @@ function check_vars() {
   $ret
 }
 
-if ! check_vars "GCP_PROJECT_ID" "GCP_SA_EMAIL" "GCP_SA_KEY" "GCP_BUCKET"; then
-  echo "::set-output name=gcp-variables-set::false"
+echo "::set-output name=are-variables-set::true"
+
+if ! check_vars ${@}; then
+  echo "::set-output name=are-variables-set::false"
   echo >&2 "!!! WARNING !!!"
-  echo >&2 "Not all GCP variables are set. Jobs which require them will be skipped."
-else
-  echo "::set-output name=gcp-variables-set::true"
+  echo >&2 "Not all variables are set. Jobs which require them will be skipped."
 fi

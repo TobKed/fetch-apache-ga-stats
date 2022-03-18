@@ -20,7 +20,7 @@ Example:
     GITHUB_TOKEN=1234 python scripts/fetch_github_actions_queue.py \
         --input matrix.json \
         --bq-output ${{ env.BQ_CSV_FILE }} \
-        --gcs-output-dir ${{ env.GCS_STATS_DIR }}
+        --output-dir ${{ env.STATS_DIR }}
 
 """
 import argparse
@@ -52,10 +52,10 @@ def parse_args() -> Tuple[str, str, str]:
         "--bq-output", help="Single csv file for BigQuery", required=True
     )
     parser.add_argument(
-        "--gcs-output-dir", help="Directory for separate json files", required=True
+        "--output-dir", help="Directory for separate json files", required=True
     )
     args = parser.parse_args()
-    return args.input, args.bq_output, args.gcs_output_dir
+    return args.input, args.bq_output, args.output_dir
 
 
 def parse_input_file(file: str) -> Tuple[str, List[str]]:
@@ -122,8 +122,6 @@ def fetch_github_actions_queue(
 
 
 if __name__ == "__main__":
-    input_file, bq_csv_file, gcs_output_dir = parse_args()
+    input_file, bq_csv_file, out_dir = parse_args()
     repositories_owner, repositories = parse_input_file(input_file)
-    fetch_github_actions_queue(
-        repositories_owner, repositories, bq_csv_file, gcs_output_dir
-    )
+    fetch_github_actions_queue(repositories_owner, repositories, bq_csv_file, out_dir)
