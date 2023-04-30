@@ -432,6 +432,7 @@
         "kylin",
         "kyuubi",
         "kyuubi-docker",
+        "kyuubi-shaded",
         "kyuubi-website",
         "libcloud",
         "libcloud-site",
