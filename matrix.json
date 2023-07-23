@@ -343,6 +343,7 @@
         "hudi",
         "iceberg",
         "iceberg-docs",
+        "iceberg-rust",
         "ignite",
         "ignite-extensions",
         "ignite-python-thin-client",
